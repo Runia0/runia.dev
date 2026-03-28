@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>runia.dev</title>
+  <link rel="icon" type="image/png" href="runia world.png">
+</head>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#030805;--bg2:#060d08;--surface:#0a140c;--surface2:#0f1f12;--green:#00ff6a;--green-dim:#00c952;--green-faint:rgba(0,255,106,0.05);--white:#e8f5ea;--white-dim:#9eb8a2;--border:rgba(0,255,106,0.12);--border-bright:rgba(0,255,106,0.35);--font-mono:'JetBrains Mono',monospace;--font-sans:'Syne',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font-sans);overflow-x:hidden;cursor:none}
+.cursor{width:10px;height:10px;background:var(--green);border-radius:50%;position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 0 12px var(--green),0 0 30px rgba(0,255,106,0.4)}
+.cursor-ring{width:36px;height:36px;border:1.5px solid rgba(0,255,106,0.5);border-radius:50%;position:fixed;z-index:9998;pointer-events:none;transform:translate(-50%,-50%)}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:100}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:18px 60px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(3,8,5,0.97),transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:12px}
+.nav-logo img{width:40px;height:40px;object-fit:contain}
+.nav-logo-text{font-family:var(--font-mono);font-size:1rem;color:var(--green);letter-spacing:0.1em}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-family:var(--font-mono);font-size:0.73rem;color:var(--white-dim);text-decoration:none;letter-spacing:0.08em;transition:color .2s;position:relative}
+.nav-links a::before{content:'// ';color:var(--green);opacity:0;transition:opacity .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-links a:hover::before{opacity:1}
+.lang-switcher{display:flex;gap:4px;align-items:center}
+.lang-btn{font-family:var(--font-mono);font-size:0.68rem;padding:5px 10px;border:1px solid var(--border);background:transparent;color:var(--white-dim);cursor:pointer;letter-spacing:0.08em;transition:all .2s}
+.lang-btn.active{background:var(--green);color:#030805;border-color:var(--green);font-weight:700}
+.lang-btn:hover:not(.active){border-color:var(--green);color:var(--green)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:130px 60px 60px;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,106,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,106,0.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%)}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.orb-1{width:400px;height:400px;background:radial-gradient(circle,rgba(0,255,106,0.12),transparent 70%);top:10%;right:5%;animation:float1 8s ease-in-out infinite}
+.orb-2{width:300px;height:300px;background:radial-gradient(circle,rgba(0,200,80,0.08),transparent 70%);bottom:20%;left:10%;animation:float2 10s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,20px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-15px)}}
+.hero-roles{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;opacity:0;animation:fadeUp .6s .3s forwards}
+.role-badge{font-family:var(--font-mono);font-size:0.7rem;color:var(--green);border:1px solid rgba(0,255,106,0.3);padding:5px 14px;letter-spacing:0.1em;background:rgba(0,255,106,0.04)}
+.role-badge span{color:var(--white-dim)}
+.hero-title{font-size:clamp(3rem,8vw,7rem);font-weight:800;line-height:1;letter-spacing:-0.03em;margin-bottom:14px;opacity:0;animation:fadeUp .7s .5s forwards}
+.hero-title .accent{color:var(--green)}
+.hero-title .dim{color:var(--white-dim);font-weight:400}
+.hero-subtitle{font-family:var(--font-mono);font-size:clamp(0.82rem,1.5vw,1rem);color:var(--white-dim);margin-bottom:48px;max-width:500px;line-height:1.8;opacity:0;animation:fadeUp .7s .7s forwards}
+.hero-cta{display:flex;gap:16px;flex-wrap:wrap;opacity:0;animation:fadeUp .7s .9s forwards}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--green);color:#030805;font-family:var(--font-mono);font-size:0.82rem;font-weight:700;letter-spacing:0.05em;text-decoration:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:transform .2s,box-shadow .2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,255,106,0.4)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;border:1px solid var(--border-bright);color:var(--green);font-family:var(--font-mono);font-size:0.82rem;letter-spacing:0.05em;text-decoration:none;transition:background .2s,border-color .2s}
+.btn-secondary:hover{background:var(--green-faint);border-color:var(--green)}
+
+/* TERMINAL */
+.terminal{position:absolute;right:60px;top:50%;transform:translateY(-50%);width:min(400px,35vw);background:#050e07;border:1px solid var(--border);box-shadow:0 0 60px rgba(0,255,106,0.06),inset 0 0 40px rgba(0,0,0,0.5);opacity:0;animation:fadeLeft .8s 1.1s forwards}
+.terminal-bar{padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%}.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.terminal-title{font-family:var(--font-mono);font-size:0.7rem;color:var(--white-dim);margin:0 auto;letter-spacing:0.05em}
+.terminal-body{padding:20px;font-family:var(--font-mono);font-size:0.75rem;line-height:1.9}
+.t-line{display:flex;gap:8px}.t-prompt{color:var(--green)}.t-cmd{color:var(--white)}
+.t-out{color:var(--white-dim);padding-left:16px}.t-out.green{color:var(--green)}.t-out.dim{color:#4a7a52}
+.t-cursor{display:inline-block;width:8px;height:14px;background:var(--green);vertical-align:middle;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* STATS */
+.stats-bar{display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:0 60px}
+.stat-item{flex:1;padding:28px 36px;border-right:1px solid var(--border);position:relative;overflow:hidden}
+.stat-item:last-child{border-right:none}
+.stat-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);transform:scaleX(0);transition:transform .5s}
+.stat-item:hover::before{transform:scaleX(1)}
+.stat-num{font-family:var(--font-mono);font-size:2rem;font-weight:700;color:var(--green);line-height:1;margin-bottom:6px}
+.stat-label{font-size:0.72rem;color:var(--white-dim);letter-spacing:0.1em;text-transform:uppercase}
+
+/* SECTIONS */
+section{padding:96px 60px}
+.section-header{display:flex;align-items:center;gap:20px;margin-bottom:60px}
+.section-tag{font-family:var(--font-mono);font-size:0.68rem;color:var(--green);letter-spacing:0.2em;text-transform:uppercase;writing-mode:vertical-lr;transform:rotate(180deg)}
+.section-title{font-size:clamp(1.8rem,3.5vw,3rem);font-weight:800;letter-spacing:-0.03em}
+.section-line{flex:1;height:1px;background:linear-gradient(to right,var(--border-bright),transparent)}
+
+/* SERVICES */
+#services{background:var(--bg2)}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.service-card{background:var(--bg2);padding:38px 34px;position:relative;overflow:hidden;transition:background .3s}
+.service-card::before{content:'';position:absolute;inset:0;background:var(--green-faint);opacity:0;transition:opacity .3s}
+.service-card:hover{background:var(--surface)}
+.service-card:hover::before{opacity:1}
+.service-icon{font-size:1.8rem;margin-bottom:18px;display:block}
+.service-num{font-family:var(--font-mono);font-size:0.62rem;color:var(--green);opacity:0.5;margin-bottom:12px;letter-spacing:0.1em}
+.service-title{font-size:1.1rem;font-weight:700;margin-bottom:10px;color:var(--white)}
+.service-desc{font-size:0.86rem;color:var(--white-dim);line-height:1.75}
+
+/* PROJECTS */
+#projects{background:var(--bg)}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.project-card{background:var(--bg);padding:32px;position:relative;overflow:hidden;transition:background .3s}
+.project-card::before{content:'';position:absolute;inset:0;background:var(--green-faint);opacity:0;transition:opacity .3s}
+.project-card:hover{background:var(--surface)}
+.project-card:hover::before{opacity:1}
+.project-num{font-family:var(--font-mono);font-size:0.6rem;color:var(--green);letter-spacing:0.15em;margin-bottom:16px;opacity:0.6}
+.project-title{font-size:1.15rem;font-weight:700;margin-bottom:10px}
+.project-desc{font-size:0.85rem;color:var(--white-dim);line-height:1.7;margin-bottom:20px}
+.tech-stack{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+.tech-tag{font-family:var(--font-mono);font-size:0.64rem;color:var(--green-dim);border:1px solid rgba(0,201,82,0.25);padding:3px 10px;letter-spacing:0.04em}
+.project-link{font-family:var(--font-mono);font-size:0.72rem;color:var(--green);text-decoration:none;letter-spacing:0.1em;display:inline-flex;align-items:center;gap:6px;transition:gap .2s}
+.project-link:hover{gap:12px}
+
+/* SKILLS */
+#skills{background:var(--bg2)}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:40px}
+.skill-cat-title{font-family:var(--font-mono);font-size:0.7rem;color:var(--green);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.skill-row{margin-bottom:16px}
+.skill-info{display:flex;justify-content:space-between;margin-bottom:7px}
+.skill-name{font-family:var(--font-mono);font-size:0.78rem;color:var(--white)}
+.skill-pct{font-family:var(--font-mono);font-size:0.72rem;color:var(--green)}
+.skill-bar-bg{height:3px;background:var(--surface2);position:relative;overflow:hidden}
+.skill-bar-fill{height:100%;background:linear-gradient(to right,var(--green-dim),var(--green));box-shadow:0 0 8px var(--green);width:0%;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.skill-bar-fill.animated{width:var(--pct)}
+
+/* ABOUT */
+#about{background:var(--bg)}
+.about-layout{display:grid;grid-template-columns:1fr 1.7fr;gap:80px;align-items:start}
+.about-visual{position:relative}
+.about-img-container{position:relative;aspect-ratio:1;max-width:320px}
+.about-img-border{position:absolute;inset:-1px;border:1px solid var(--border-bright);pointer-events:none}
+.about-img-border::before{content:'';position:absolute;top:-8px;left:-8px;width:20px;height:20px;border-top:2px solid var(--green);border-left:2px solid var(--green)}
+.about-img-border::after{content:'';position:absolute;bottom:-8px;right:-8px;width:20px;height:20px;border-bottom:2px solid var(--green);border-right:2px solid var(--green)}
+.about-logo-display{width:100%;aspect-ratio:1;background:var(--surface);display:flex;align-items:center;justify-content:center}
+.about-logo-display img{width:75%;filter:drop-shadow(0 0 20px rgba(0,255,106,0.2))}
+.about-coord{font-family:var(--font-mono);font-size:0.61rem;color:var(--white-dim);margin-top:14px;opacity:0.5;letter-spacing:0.08em}
+.about-text h3{font-size:1.65rem;font-weight:800;margin-bottom:20px;letter-spacing:-0.02em;line-height:1.2}
+.about-text h3 span{color:var(--green)}
+.about-text p{font-size:0.91rem;color:var(--white-dim);line-height:1.9;margin-bottom:18px}
+.about-details{margin-top:30px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-item{padding:14px 16px;border:1px solid var(--border);background:var(--surface)}
+.detail-label{font-family:var(--font-mono);font-size:0.6rem;color:var(--green);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px}
+.detail-value{font-size:0.84rem;color:var(--white)}
+
+/* CONTACT */
+#contact{background:var(--bg2);text-align:center}
+.contact-inner{max-width:580px;margin:0 auto}
+.contact-inner .section-header{justify-content:center;flex-direction:column;gap:14px}
+.contact-inner .section-line,.contact-inner .section-tag{display:none}
+.contact-lead{font-family:var(--font-mono);font-size:0.92rem;color:var(--white-dim);line-height:1.85;margin-bottom:44px}
+.contact-links{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+
+/* FOOTER */
+footer{padding:26px 60px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.footer-text{font-family:var(--font-mono);font-size:0.68rem;color:var(--white-dim);opacity:0.5}
+.footer-text span{color:var(--green);opacity:1}
+
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeLeft{from{opacity:0;transform:translate(24px,-50%)}to{opacity:1;transform:translate(0,-50%)}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--green-dim)}
+
+@media(max-width:900px){
+  nav{padding:16px 20px}.nav-links{display:none}
+  .hero{padding:100px 22px 60px}.terminal{display:none}
+  .stats-bar{margin:0;flex-wrap:wrap}
+  section{padding:70px 22px}
+  .about-layout{grid-template-columns:1fr}
+  footer{padding:22px;flex-direction:column;gap:10px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+    <span class="nav-logo-text">runia.dev</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#home" data-i18n="nav_home">Ana Sayfa</a></li>
+    <li><a href="#services" data-i18n="nav_services">Hizmetler</a></li>
+    <li><a href="#projects" data-i18n="nav_projects">Projeler</a></li>
+    <li><a href="#skills" data-i18n="nav_skills">Yetenekler</a></li>
+    <li><a href="#about" data-i18n="nav_about">Hakkımda</a></li>
+    <li><a href="#contact" data-i18n="nav_contact">İletişim</a></li>
+  </ul>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('tr')">TR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ru')">RU</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="hero-roles">
+    <span class="role-badge"><span>//</span> Web Geliştirici</span>
+    <span class="role-badge"><span>//</span> Tasarımcı</span>
+    <span class="role-badge"><span>//</span> Developer</span>
+  </div>
+  <h1 class="hero-title">
+    <span class="dim" data-i18n="hero_greeting">Merhaba, ben</span><br>
+    <span class="accent">Runia.</span>
+  </h1>
+  <p class="hero-subtitle" data-i18n="hero_sub">Yazılımın içinde büyüyen, yeni teknolojileri kurcalamayı seven<br>ve merak ettiği her konuda kafa yoran bir geliştirici.</p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn-primary" data-i18n="hero_cta1">→ Projeleri Gör</a>
+    <a href="#contact" class="btn-secondary" data-i18n="hero_cta2">İletişime Geç</a>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="terminal-title">berat@dev ~ /portfolio</span>
+    </div>
+    <div class="terminal-body">
+      <div class="t-line"><span class="t-prompt">❯</span><span class="t-cmd">whoami</span></div>
+      <div class="t-out green">berat — web dev &amp; designer</div><br>
+      <div class="t-line"><span class="t-prompt">❯</span><span class="t-cmd">cat interests.txt</span></div>
+      <div class="t-out">web dev, ui/ux, discord bots,</div>
+      <div class="t-out">game design, music, AI projects</div><br>
+      <div class="t-line"><span class="t-prompt">❯</span><span class="t-cmd">git log --oneline -2</span></div>
+      <div class="t-out dim">f3a9b12 feat: always learning</div>
+      <div class="t-out dim">2c8e471 build: new ideas daily</div><br>
+      <div class="t-line"><span class="t-prompt">❯</span><span class="t-cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item reveal"><div class="stat-num">3+</div><div class="stat-label" data-i18n="stat1">Yıl Deneyim</div></div>
+  <div class="stat-item reveal"><div class="stat-num">20+</div><div class="stat-label" data-i18n="stat2">Tamamlanan Proje</div></div>
+  <div class="stat-item reveal"><div class="stat-num">10+</div><div class="stat-label" data-i18n="stat3">Teknoloji</div></div>
+  <div class="stat-item reveal"><div class="stat-num">∞</div><div class="stat-label" data-i18n="stat4">Merak</div></div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-header reveal">
+    <span class="section-tag">Services</span>
+    <h2 class="section-title" data-i18n="services_title">Hizmetlerim</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">// 01</div>
+      <span class="service-icon">⌨️</span>
+      <h3 class="service-title" data-i18n="svc1_title">Web Geliştirme</h3>
+      <p class="service-desc" data-i18n="svc1_desc">HTML, CSS, JavaScript, React, Node.js ile modern ve responsive web siteleri geliştiriyorum.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">// 02</div>
+      <span class="service-icon">🎨</span>
+      <h3 class="service-title" data-i18n="svc2_title">UI/UX Tasarım</h3>
+      <p class="service-desc" data-i18n="svc2_desc">Kullanıcı odaklı, estetik ve işlevsel arayüz tasarımları oluşturuyorum.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">// 03</div>
+      <span class="service-icon">📱</span>
+      <h3 class="service-title" data-i18n="svc3_title">Mobil Uyumlu</h3>
+      <p class="service-desc" data-i18n="svc3_desc">Tüm cihazlarda mükemmel görünen responsive tasarımlar yapıyorum.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">// 04</div>
+      <span class="service-icon">⚡</span>
+      <h3 class="service-title" data-i18n="svc4_title">Performans</h3>
+      <p class="service-desc" data-i18n="svc4_desc">Hızlı yüklenen, optimize edilmiş web uygulamaları geliştiriyorum.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-num">// 05</div>
+      <span class="service-icon">👾</span>
+      <h3 class="service-title" data-i18n="svc4_title">Kolay Kullanım </h3>
+      <p class="service-desc" data-i18n="svc4_desc">Basit ve etkili arayüzler ile kolay kullanım.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header reveal">
+    <span class="section-tag">Works</span>
+    <h2 class="section-title" data-i18n="projects_title">Projelerim</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-num">// 001</div>
+      <h3 class="project-title" data-i18n="p1_title">Discord Bot Sistemi</h3>
+      <p class="project-desc" data-i18n="p1_desc">Özelleştirilebilir komutlar, moderasyon araçları ve müzik entegrasyonu olan gelişmiş bir Discord bot altyapısı.</p>
+      <div class="tech-stack"><span class="tech-tag">Node.js</span><span class="tech-tag">Discord.js</span><span class="tech-tag">MongoDB</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">// 002</div>
+      <h3 class="project-title" data-i18n="p2_title">Kişisel Portfolio</h3>
+      <p class="project-desc" data-i18n="p2_desc">Modern tasarım anlayışıyla oluşturulmuş, tam responsive kişisel pazarlama ve portföy sitesi.</p>
+      <div class="tech-stack"><span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JavaScript</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">// 003</div>
+      <h3 class="project-title" data-i18n="p3_title">Oyun Mekaniği Prototipi</h3>
+      <p class="project-desc" data-i18n="p3_desc">Özgün oyun mekaniği ve fizik sistemi içeren 2D oyun prototipi. Karakter hareketi ve düşman yapay zekası içerir.</p>
+      <div class="tech-stack"><span class="tech-tag">JavaScript</span><span class="tech-tag">Canvas API</span><span class="tech-tag">Game Design</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">// 004</div>
+      <h3 class="project-title" data-i18n="p4_title">AI Proje Denemeleri</h3>
+      <p class="project-desc" data-i18n="p4_desc">Yapay zeka API'leri ile entegre edilmiş çeşitli deney projeleri. Metin üretimi ve görsel analiz denemeleri.</p>
+      <div class="tech-stack"><span class="tech-tag">Python</span><span class="tech-tag">OpenAI API</span><span class="tech-tag">React</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">// 005</div>
+      <h3 class="project-title" data-i18n="p5_title">UI Komponent Kütüphanesi</h3>
+      <p class="project-desc" data-i18n="p5_desc">Kendi tasarım sistemim üzerine inşa edilmiş yeniden kullanılabilir UI bileşen koleksiyonu.</p>
+      <div class="tech-stack"><span class="tech-tag">React</span><span class="tech-tag">CSS</span><span class="tech-tag">Figma</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-num">// 006</div>
+      <h3 class="project-title" data-i18n="p6_title">Müzik Projesi</h3>
+      <p class="project-desc" data-i18n="p6_desc">Rock ve alternatif tarzda orijinal şarkılar. Söz yazarlığından prodüksiyona kadar tüm süreci kapsayan yaratıcı süreç.</p>
+      <div class="tech-stack"><span class="tech-tag">Music</span><span class="tech-tag">Rock</span><span class="tech-tag">Songwriting</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+     <div class="project-card reveal">
+      <div class="project-num">// 007</div>
+      <h3 class="project-title" data-i18n="p6_title">Oyun Projesi</h3>
+      <p class="project-desc" data-i18n="p6_desc">Roblox ve Fıvem'da kusursuz çalışan Lua ile geliştirlmiş projeler.</p>
+      <div class="tech-stack"><span class="tech-tag">Game</span><span class="tech-tag">Lua</span><span class="tech-tag">Roleplay</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+     <div class="project-card reveal">
+      <div class="project-num">// 008</div>
+      <h3 class="project-title" data-i18n="p6_title">Aviyonik</h3>
+      <p class="project-desc" data-i18n="p6_desc">Aviyonik ile alakalı gerekli donanaım ve takım çalışmasına uıygunluk.</p>
+      <div class="tech-stack"><span class="tech-tag">Avionic</span><span class="tech-tag">Team</span><span class="tech-tag">Friendliness</span></div>
+      <a href="#" class="project-link" data-i18n="see_detail">Detayları Gör →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="section-tag">Stack</span>
+    <h2 class="section-title" data-i18n="skills_title">Yeteneklerim</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="skills-grid">
+    <div>
+      <div class="skill-cat-title">// Frontend</div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">HTML &amp; CSS</span><span class="skill-pct">92%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:92%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">JavaScript</span><span class="skill-pct">85%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:85%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">React</span><span class="skill-pct">78%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:78%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">Responsive Design</span><span class="skill-pct">90%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:90%"></div></div></div>
+    </div>
+    <div>
+      <div class="skill-cat-title">// Backend &amp; Tools</div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">Node.js</span><span class="skill-pct">75%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:75%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">Python</span><span class="skill-pct">70%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:70%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">Git / GitHub</span><span class="skill-pct">82%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:82%"></div></div></div>
+    </div>
+    <div>
+      <div class="skill-cat-title">// Design &amp; Other</div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">UI/UX Design</span><span class="skill-pct">80%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:80%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">Figma</span><span class="skill-pct">75%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:75%"></div></div></div>
+      <div class="skill-row reveal"><div class="skill-info"><span class="skill-name">Game Design</span><span class="skill-pct">65%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--pct:65%"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-tag">About</span>
+    <h2 class="section-title" data-i18n="about_title">Hakkımda</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-layout">
+    <div class="about-visual reveal">
+      <div class="about-img-container">
+        <div class="about-img-border"></div>
+        <div class="about-logo-display">
+          <img src="runia world.png" alt="Berat Logo">
+        </div>
+      </div>
+      <p class="about-coord">//Türkiye</p>
+    </div>
+    <div class="about-text reveal">
+      <h3 data-i18n="about_headline">Kod yazıyorum,<br><span>hayaller inşa ediyorum.</span></h3>
+      <p data-i18n="about_p1">Merhaba, ben Berat. Yazılımın içinde büyüyen, yeni teknolojileri kurcalamayı seven ve aynı zamanda merak ettiği her konuda kafa yoran biriyim. Kod yazarken de, tasarım denerken de, müzikle uğraşırken de aynı şeyi arıyorum: ortaya gerçekten "ben yaptım" diyebileceğim bir şey koymak.</p>
+      <p data-i18n="about_p2">Bir gün Discord botu geliştiririm, ertesi gün oyun mekaniği tasarlarım; bazen rock şarkısı yazarım, bazen de yapay zeka projeleriyle uğraşırım. Tek bir alana sıkışmayı sevmem — öğrenmek hoşuma gider, yeni fikirlerin peşinden koşmak da öyle.</p>
+      <p data-i18n="about_p3">Hedefim basit: ürettiğim şeylerin hem bana hem de kullananlara bir değer katması. Kısacası; çok yönlü, meraklı ve yaptığı işte sürekli daha iyisini arayan biriyim.</p>
+      <div class="about-details">
+        <div class="detail-item"><div class="detail-label" data-i18n="d_loc">Konum</div><div class="detail-value">Türkiye</div></div>
+        <div class="detail-item"><div class="detail-label" data-i18n="d_role">Rol</div><div class="detail-value" data-i18n="d_role_val">Web Dev &amp; Designer</div></div>
+        <div class="detail-item"><div class="detail-label" data-i18n="d_status">Durum</div><div class="detail-value" style="color:var(--green)" data-i18n="d_status_val">● Müsait</div></div>
+        <div class="detail-item"><div class="detail-label" data-i18n="d_interest">İlgi Alanı</div><div class="detail-value" data-i18n="d_interest_val">Dev, Design, Müzik, AI</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-header reveal">
+      <h2 class="section-title" data-i18n="contact_title">İletişim</h2>
+    </div>
+    <p class="contact-lead reveal" data-i18n="contact_lead">Yeni bir proje mi planlıyorsunuz? İş birliği yapmak mı istiyorsunuz?<br>Benimle iletişime geçin — birlikte harika şeyler inşa edelim.</p>
+    <div class="contact-links reveal">
+      <a href="mailto:berat@dev.com" class="btn-primary" data-i18n="contact_email">✉ Email Gönder</a>
+      <a href="#" class="btn-secondary">GitHub</a>
+      <a href="#" class="btn-secondary">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-text">© 2026 <span>berat.dev</span></span>
+  <span class="footer-text" data-i18n="footer_made">Tasarlandı &amp; Geliştirildi <span>❤</span> ile</span>
+</footer>
+
+<script>
+const i18n = {
+  tr:{
+    nav_home:"Ana Sayfa",nav_services:"Hizmetler",nav_projects:"Projeler",nav_skills:"Yetenekler",nav_about:"Hakkımda",nav_contact:"İletişim",
+    hero_greeting:"Merhaba, ben",
+    hero_sub:"Yazılımın içinde büyüyen, yeni teknolojileri kurcalamayı seven<br>ve merak ettiği her konuda kafa yoran bir geliştirici.",
+    hero_cta1:"→ Projeleri Gör",hero_cta2:"İletişime Geç",
+    stat1:"Yıl Deneyim",stat2:"Tamamlanan Proje",stat3:"Teknoloji",stat4:"Merak",
+    services_title:"Hizmetlerim",
+    svc1_title:"Web Geliştirme",svc1_desc:"HTML, CSS, JavaScript, React, Node.js ile modern ve responsive web siteleri geliştiriyorum.",
+    svc2_title:"UI/UX Tasarım",svc2_desc:"Kullanıcı odaklı, estetik ve işlevsel arayüz tasarımları oluşturuyorum.",
+    svc3_title:"Mobil Uyumlu",svc3_desc:"Tüm cihazlarda mükemmel görünen responsive tasarımlar yapıyorum.",
+    svc4_title:"Performans",svc4_desc:"Hızlı yüklenen, optimize edilmiş web uygulamaları geliştiriyorum.",
+    projects_title:"Projelerim",
+    p1_title:"Discord Bot Sistemi",p1_desc:"Özelleştirilebilir komutlar, moderasyon araçları ve müzik entegrasyonu olan gelişmiş bir Discord bot altyapısı.",
+    p2_title:"Kişisel Portfolio",p2_desc:"Modern tasarım anlayışıyla oluşturulmuş, tam responsive kişisel pazarlama ve portföy sitesi.",
+    p3_title:"Oyun Mekaniği Prototipi",p3_desc:"Özgün oyun mekaniği ve fizik sistemi içeren 2D oyun prototipi. Karakter hareketi ve düşman yapay zekası içerir.",
+    p4_title:"AI Proje Denemeleri",p4_desc:"Yapay zeka API'leri ile entegre edilmiş çeşitli deney projeleri. Metin üretimi ve görsel analiz denemeleri.",
+    p5_title:"UI Komponent Kütüphanesi",p5_desc:"Kendi tasarım sistemim üzerine inşa edilmiş yeniden kullanılabilir UI bileşen koleksiyonu.",
+    p6_title:"Müzik Projesi",p6_desc:"Rock ve alternatif tarzda orijinal şarkılar. Söz yazarlığından prodüksiyona kadar tüm süreci kapsayan yaratıcı süreç.",
+    see_detail:"Detayları Gör →",
+    skills_title:"Yeteneklerim",
+    about_title:"Hakkımda",
+    about_headline:"Kod yazıyorum,<br><span>hayaller inşa ediyorum.</span>",
+    about_p1:'Merhaba, ben Berat. Yazılımın içinde büyüyen, yeni teknolojileri kurcalamayı seven ve aynı zamanda merak ettiği her konuda kafa yoran biriyim. Kod yazarken de, tasarım denerken de, müzikle uğraşırken de aynı şeyi arıyorum: ortaya gerçekten "ben yaptım" diyebileceğim bir şey koymak.',
+    about_p2:"Bir gün Discord botu geliştiririm, ertesi gün oyun mekaniği tasarlarım; bazen rock şarkısı yazarım, bazen de yapay zeka projeleriyle uğraşırım. Tek bir alana sıkışmayı sevmem — öğrenmek hoşuma gider, yeni fikirlerin peşinden koşmak da öyle.",
+    about_p3:"Hedefim basit: ürettiğim şeylerin hem bana hem de kullananlara bir değer katması. Kısacası; çok yönlü, meraklı ve yaptığı işte sürekli daha iyisini arayan biriyim.",
+    d_loc:"Konum",d_role:"Rol",d_role_val:"Web Dev &amp; Designer",d_status:"Durum",d_status_val:"● Müsait",d_interest:"İlgi Alanı",d_interest_val:"Dev, Design, Müzik, AI",
+    contact_title:"İletişim",contact_lead:"Yeni bir proje mi planlıyorsunuz? İş birliği yapmak mı istiyorsunuz?<br>Benimle iletişime geçin — birlikte harika şeyler inşa edelim.",
+    contact_email:"✉ Email Gönder",footer_made:"Tasarlandı &amp; Geliştirildi <span>❤</span> ile"
+  },
+  en:{
+    nav_home:"Home",nav_services:"Services",nav_projects:"Projects",nav_skills:"Skills",nav_about:"About",nav_contact:"Contact",
+    hero_greeting:"Hi, I'm",
+    hero_sub:"A developer who grew up inside code, loves tinkering with new tech<br>and thinks deeply about everything that sparks curiosity.",
+    hero_cta1:"→ View Projects",hero_cta2:"Get In Touch",
+    stat1:"Years Experience",stat2:"Projects Done",stat3:"Technologies",stat4:"Curiosity",
+    services_title:"My Services",
+    svc1_title:"Web Development",svc1_desc:"Building modern, responsive websites using HTML, CSS, JavaScript, React and Node.js.",
+    svc2_title:"UI/UX Design",svc2_desc:"Creating user-focused, aesthetic and functional interface designs.",
+    svc3_title:"Mobile Friendly",svc3_desc:"Designing responsive layouts that look perfect on every device.",
+    svc4_title:"Performance",svc4_desc:"Developing fast-loading, optimized web applications.",
+    projects_title:"My Projects",
+    p1_title:"Discord Bot System",p1_desc:"An advanced Discord bot infrastructure with customizable commands, moderation tools and music integration.",
+    p2_title:"Personal Portfolio",p2_desc:"A fully responsive personal marketing and portfolio site built with a modern design philosophy.",
+    p3_title:"Game Mechanic Prototype",p3_desc:"A 2D game prototype with original mechanics and physics, including character movement and enemy AI.",
+    p4_title:"AI Experiment Projects",p4_desc:"Various experimental projects integrated with AI APIs, covering text generation and visual analysis.",
+    p5_title:"UI Component Library",p5_desc:"A collection of reusable UI components built on top of my own design system.",
+    p6_title:"Music Project",p6_desc:"Original songs in rock and alternative styles — a creative journey from songwriting to production.",
+    see_detail:"See Details →",
+    skills_title:"My Skills",
+    about_title:"About Me",
+    about_headline:"I write code,<br><span>I build dreams.</span>",
+    about_p1:"Hi, I'm Berat. I grew up inside software, love tinkering with new technologies, and always think deeply about whatever sparks my curiosity. Whether I'm coding, experimenting with design, or working on music — I'm always chasing the same thing: creating something I can genuinely call my own.",
+    about_p2:"One day I build a Discord bot, the next I design a game mechanic; sometimes I write a rock song, sometimes I work on AI projects. I don't like being stuck in one lane — I love learning and chasing new ideas.",
+    about_p3:"My goal is simple: everything I create should add value — both for me and for the people who use it. In short: versatile, curious, and always striving to be better.",
+    d_loc:"Location",d_role:"Role",d_role_val:"Web Dev &amp; Designer",d_status:"Status",d_status_val:"● Available",d_interest:"Interests",d_interest_val:"Dev, Design, Music, AI",
+    contact_title:"Contact",contact_lead:"Planning a new project? Want to collaborate?<br>Reach out — let's build something great together.",
+    contact_email:"✉ Send Email",footer_made:"Designed &amp; Developed with <span>❤</span>"
+  },
+  ru:{
+    nav_home:"Главная",nav_services:"Услуги",nav_projects:"Проекты",nav_skills:"Навыки",nav_about:"Обо мне",nav_contact:"Контакт",
+    hero_greeting:"Привет, я",
+    hero_sub:"Разработчик, выросший в мире кода, обожающий новые технологии<br>и размышляющий над всем, что вызывает любопытство.",
+    hero_cta1:"→ Смотреть проекты",hero_cta2:"Связаться",
+    stat1:"Года опыта",stat2:"Готовых проектов",stat3:"Технологий",stat4:"Любопытство",
+    services_title:"Мои услуги",
+    svc1_title:"Веб-разработка",svc1_desc:"Создаю современные адаптивные сайты на HTML, CSS, JavaScript, React и Node.js.",
+    svc2_title:"UI/UX Дизайн",svc2_desc:"Создаю ориентированные на пользователя, эстетичные и функциональные интерфейсы.",
+    svc3_title:"Мобильная версия",svc3_desc:"Разрабатываю адаптивные дизайны, отлично выглядящие на любом устройстве.",
+    svc4_title:"Производительность",svc4_desc:"Разрабатываю быстрые, оптимизированные веб-приложения.",
+    projects_title:"Мои проекты",
+    p1_title:"Система Discord-ботов",p1_desc:"Продвинутая инфраструктура Discord-ботов с настраиваемыми командами, инструментами модерации и музыкальной интеграцией.",
+    p2_title:"Личное портфолио",p2_desc:"Полностью адаптивный личный сайт-портфолио, созданный в современном дизайне.",
+    p3_title:"Прототип игровой механики",p3_desc:"2D игровой прототип с оригинальными механиками и физикой. Включает движение персонажа и AI врагов.",
+    p4_title:"AI-эксперименты",p4_desc:"Различные экспериментальные проекты с интеграцией AI API — генерация текста и визуальный анализ.",
+    p5_title:"Библиотека UI компонентов",p5_desc:"Коллекция переиспользуемых UI-компонентов, построенных на основе собственной дизайн-системы.",
+    p6_title:"Музыкальный проект",p6_desc:"Оригинальные песни в стиле рок и альтернативы — творческий процесс от написания текстов до продюсирования.",
+    see_detail:"Подробнее →",
+    skills_title:"Мои навыки",
+    about_title:"Обо мне",
+    about_headline:"Я пишу код,<br><span>Я строю мечты.</span>",
+    about_p1:"Привет, я Бerat. Я вырос в мире программного обеспечения, люблю экспериментировать с новыми технологиями и всегда думаю о том, что вызывает любопытство. Пишу ли я код, экспериментирую с дизайном или работаю с музыкой — я всегда ищу одно: создать что-то, о чём могу сказать «я это сделал».",
+    about_p2:"Однажды создаю Discord-бота, на следующий день разрабатываю игровую механику; иногда пишу рок-песню, иногда работаю над AI-проектами. Я не люблю застревать в одной области — мне нравится учиться и гоняться за новыми идеями.",
+    about_p3:"Моя цель проста: всё, что я создаю, должно приносить ценность — и мне, и тем, кто этим пользуется. Короче говоря: разносторонний, любознательный и постоянно стремящийся к лучшему.",
+    d_loc:"Местоположение",d_role:"Роль",d_role_val:"Веб-разработчик и Дизайнер",d_status:"Статус",d_status_val:"● Доступен",d_interest:"Интересы",d_interest_val:"Dev, Design, Музыка, AI",
+    contact_title:"Контакт",contact_lead:"Планируете новый проект? Хотите сотрудничать?<br>Свяжитесь со мной — создадим что-то великое вместе.",
+    contact_email:"✉ Написать письмо",footer_made:"Разработано с <span>❤</span>"
+  }
+};
+
+function setLang(lang){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===lang.toUpperCase()));
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    const v=i18n[lang][k];
+    if(v!==undefined) el.innerHTML=v;
+  });
+  document.documentElement.lang=lang;
+}
+
+// Cursor
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+(function a(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
+
+// Reveal
+const io=new IntersectionObserver((entries)=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);io.unobserve(e.target)}})},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// Skill bars
+const bIO=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('animated'),300);bIO.unobserve(e.target)}})},{threshold:0.5});
+document.querySelectorAll('.skill-bar-fill').forEach(b=>bIO.observe(b));
+
+// Logo fallback
+document.querySelectorAll('img[src="logo_runia0_world.png"]').forEach(img=>{img.onerror=function(){if(!this.src.includes('/mnt/')){this.src='/mnt/user-data/uploads/logo_runia0_şirkety.png'}}});
+</script>
+</body>
+</html>
